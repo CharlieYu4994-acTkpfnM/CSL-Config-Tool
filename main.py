@@ -60,20 +60,50 @@ class detail_window(tkinter.Toplevel):
         displayh = self.winfo_screenheight() // 2
         dispalyw = self.winfo_screenwidth() // 2
         self.cfg = cfg
-        self.geometry(f'400x350+{dispalyw-200}+{displayh-200}')
+        self.geometry(f'400x320+{dispalyw-200}+{displayh-200}')
         self.title('Detail')
         self.focus_set()
         self.grab_set()
+        self.setupUI()
+
+        if self.cfg['type'] == 'legacy':
+            self.type_cbx['state'] = 'disabled'
+            self.name_entry.insert('0', self.cfg['name'])
+            self.root_entry.insert('0', self.cfg[''])
+        else:
+            self.skin_entry['state'] = 'disabled'
+            self.cape_entry['state'] = 'disabled'
+            self.elytra_entry['state'] = 'disabled'
+            self.png_chb['state'] = 'disabled'
     
     def setupUI(self):
-        name_entry = ttk.Entry()
-        root_entry = ttk.Entry()
-        if cfg['type'] == "Legacy":
-            elytra_entry = ttk.Entry()
-            cape_entry = ttk.Entry()
-            png_chb = ttk.Checkbutton()
-        else:
-            type_cbx = ttk.Combobox()
+        topbox = ttk.Frame(self)
+        ttk.Label(topbox, text='配置名称: ').grid(column=0, row=0, columnspan=1)
+        self.name_entry = ttk.Entry(topbox, width=32)
+        self.name_entry.grid(column=1, row=0, columnspan=4, pady=8)
+        ttk.Label(topbox, text='API 链接: ').grid(column=0, row=1, columnspan=1)
+        self.root_entry = ttk.Entry(topbox, width=32)
+        self.root_entry.grid(column=1, row=1, columnspan=4, pady=8)
+        ttk.Label(topbox, text='皮肤链接: ').grid(column=0, row=2, columnspan=1)
+        self.skin_entry = ttk.Entry(topbox, width=32)
+        self.skin_entry.grid(column=1, row=2, columnspan=4, pady=8)
+        ttk.Label(topbox, text='披风链接: ').grid(column=0, row=3, columnspan=1)
+        self.cape_entry = ttk.Entry(topbox, width=32)
+        self.cape_entry.grid(column=1, row=3, columnspan=4, pady=8)
+        ttk.Label(topbox, text='鞘翅链接: ').grid(column=0, row=4, columnspan=1)
+        self.elytra_entry = ttk.Entry(topbox, width=32)
+        self.elytra_entry.grid(column=1, row=4, columnspan=4, pady=8)
+        ttk.Label(topbox, text='加载类型: ').grid(column=0, row=5, columnspan=1)
+        self.type_cbx = ttk.Combobox(topbox, width=16)
+        self.type_cbx.grid(column=1, row=5, columnspan=3, pady=8)
+        self.png_chb = tkinter.Checkbutton(topbox, text='png 检查')
+        self.png_chb.grid(column=4, row=5, columnspan=1, pady=8)
+        topbox.grid(column=0, row=0, pady=4, padx=15)
+
+        buttombox = ttk.Frame(self)
+        ttk.Button(buttombox, text='确定', width=18).grid(column=0, row=0, padx=8)
+        ttk.Button(buttombox, text='取消', width=18).grid(column=1, row=0, padx=8)
+        buttombox.grid(column=0, row=1, pady=4, padx=10)
 
 
 
@@ -93,7 +123,7 @@ class main(tkinter.Tk):
         self.bind('<Control-N>', lambda event: self.gen_new())
         self.bind('<Control-O>', lambda event: self.load_cfg())
         self.bind('<Control-S>', lambda event: self.save())
-        self.cfg_lsb.bind('<Double-Button-1>', )
+        self.cfg_lsb.bind('<Double-Button-1>', lambda event: self.detail())
 
     def setupUI(self):
         menu_bar = tkinter.Menu(self)
@@ -171,7 +201,8 @@ class main(tkinter.Tk):
         json.dump(self.cfg, open(path, "w"))
     
     def detail(self):
-        window = detail_window()
+        cfg = self.loadlist[self.cfg_lsb.index('active')]
+        window = detail_window(cfg)
 
     def delete(self):
         self.cfg_lsb.delete('active')
@@ -186,5 +217,5 @@ class main(tkinter.Tk):
 
 
 if __name__ == "__main__":
-    app = main()
+    app = detail_window({'type': 'legcacy'})
     app.mainloop()
